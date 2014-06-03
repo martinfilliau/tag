@@ -12,10 +12,16 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.BinaryResponseParser;
+import org.apache.solr.client.solrj.request.QueryRequest;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 
 /**
  *
@@ -34,6 +40,23 @@ public class TagResource {
     @GET
     @Path("{slug}")
     public Tag getTag(@PathParam("slug") String slug) {
+        SolrQuery q = new SolrQuery();
+        q.setRequestHandler("/get");
+        q.set("id", slug);  // id, not name of the field
+        QueryRequest req = new QueryRequest(q);
+        req.setResponseParser(new BinaryResponseParser());
+        QueryResponse rsp;
+        try {
+            rsp = req.process(solr);
+            SolrDocument out = (SolrDocument)rsp.getResponse().get("doc");
+            if (out != null) {
+                return Tag.fromSolrDocument(out);
+            } else {
+                throw new WebApplicationException(404);
+            }
+        } catch (SolrServerException ex) {
+            Logger.getLogger(TagResource.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return null;
     }
 

@@ -1,7 +1,9 @@
 package com.filliau.martin.tag.representations;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Collection;
 import java.util.List;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -76,5 +78,19 @@ public class Tag {
         doc.addField("sameAs", sameAs);
         doc.addField("broader", broader);
         return doc;
+    }
+    
+    public static Tag fromSolrDocument(SolrDocument doc) {
+        Tag tag = new Tag();
+        if (doc.containsKey("slug")) {
+            tag.setSlug((String) doc.getFieldValue("slug"));
+        }
+        if (doc.containsKey("name")) {
+            tag.setName((String) doc.getFieldValue("name"));
+        }
+        if (doc.containsKey("description")) {
+            tag.setName((String) doc.getFieldValue("description"));
+        }
+        return tag;
     }
 }
