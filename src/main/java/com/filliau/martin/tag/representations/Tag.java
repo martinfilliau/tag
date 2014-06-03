@@ -74,7 +74,7 @@ public class Tag {
         doc.addField("name", name);
         doc.addField("description", description);
         doc.addField("sameAs", sameAs);
-        doc.addField("slug", slug);
+        doc.addField("broader", broader);
         return doc;
     }
 }
